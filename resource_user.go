@@ -40,36 +40,43 @@ func resourceFreeIPAUser() *schema.Resource {
 			},
 			"full_name": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Full name",
 			},
 			"display_name": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Display name",
 			},
 			"initials": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Initials",
 			},
 			"home_directory": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Home directory",
 			},
 			"gecos": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "GECOS",
 			},
 			"login_shell": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Login shell",
 			},
 			"krb_principal_name": {
 				Type:        schema.TypeList,
+				Computed:	 true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Principal alias",
@@ -79,125 +86,148 @@ func resourceFreeIPAUser() *schema.Resource {
 					"[RFC3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.8) format " +
 					"(see [RFC3339 time string](https://tools.ietf.org/html/rfc3339#section-5.8) e.g., " +
 					"`YYYY-MM-DDTHH:MM:SSZ`)",
-				Type:     schema.TypeString,
-				Optional: true,
+				Computed:	 true,
+				Type:     	 schema.TypeString,
+				Optional: 	 true,
 			},
 			"krb_password_expiration": {
 				Description: "User password expiration " +
 					"[RFC3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.8) format " +
 					"(see [RFC3339 time string](https://tools.ietf.org/html/rfc3339#section-5.8) e.g., " +
 					"`YYYY-MM-DDTHH:MM:SSZ`)",
-				Type:     schema.TypeString,
-				Optional: true,
+				Computed:	 true,
+				Type:     	 schema.TypeString,
+				Optional: 	 true,
 			},
 			"userpassword": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Sensitive:   true,
 				Description: "Prompt to set the user password",
 			},
 			"email_address": {
 				Type:        schema.TypeList,
+				Computed:	 true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Email address",
 			},
 			"telephone_numbers": {
 				Type:        schema.TypeList,
+				Computed:	 true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Telephone Number",
 			},
 			"mobile_numbers": {
 				Type:        schema.TypeList,
+				Computed:	 true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Mobile Telephone Number",
 			},
 			"random_password": {
 				Type:        schema.TypeBool,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Generate a random user password",
 			},
 			"uid_number": {
 				Type:        schema.TypeInt,
+				Computed:	 true,
 				Optional:    true,
 				Description: "User ID Number (system will assign one if not provided)",
 			},
 			"gid_number": {
 				Type:        schema.TypeInt,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Group ID Number",
 			},
 			"street_address": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Street address",
 			},
 			"city": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "City",
 			},
 			"province": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "State/Province",
 			},
 			"postal_code": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "ZIP code",
 			},
 			"organisation_unit": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Org. Unit",
 			},
 			"job_title": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Job Title",
 			},
 			"manager": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Manager",
 			},
 			"employee_number": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Employee Number",
 			},
 			"employee_type": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Employee Type",
 			},
 			"preferred_language": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Preferred Language",
 			},
 			"account_disabled": {
 				Type:        schema.TypeBool,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Account disabled",
 			},
 			"ssh_public_key": {
 				Type:        schema.TypeList,
+				Computed:	 true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "SSH public key",
 			},
 			"car_license": {
 				Type:        schema.TypeList,
+				Computed:	 true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Car License",
 			},
 			"userclass": {
 				Type:        schema.TypeList,
+				Computed:	 true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "User category (semantics placed on this attribute are for local interpretation)",
@@ -397,6 +427,39 @@ func resourceFreeIPADNSUserRead(ctx context.Context, d *schema.ResourceData, met
 			return diag.Errorf("Error reading freeipa user: %s", err)
 		}
 	}
+
+	d.Set("first_name", res.Result.Givenname)
+	d.Set("last_name", res.Result.Sn)
+	d.Set("full_name", res.Result.Cn)
+	d.Set("display_name", res.Result.Displayname)
+	d.Set("initials", res.Result.Initials)
+	d.Set("home_directory", res.Result.Homedirectory)
+	d.Set("gecos", res.Result.Gecos)
+	d.Set("login_shell", res.Result.Loginshell)
+	d.Set("krb_principal_name", res.Result.Krbprincipalname)
+	d.Set("userpassword", res.Result.Userpassword)
+	d.Set("email_address", res.Result.Mail)
+	d.Set("telephone_numbers", res.Result.Telephonenumber)
+	d.Set("mobile_numbers", res.Result.Mobile)
+	d.Set("random_password", res.Result.Random)
+	d.Set("uid_number", res.Result.Uidnumber)
+	d.Set("gid_number", res.Result.Gidnumber)
+	d.Set("street_address", res.Result.Street)
+	d.Set("city", res.Result.L)
+	d.Set("province", res.Result.St)
+	d.Set("postal_code", res.Result.Postalcode)
+	d.Set("organisation_unit", res.Result.Ou)
+	d.Set("job_title", res.Result.Title)
+	d.Set("manager", res.Result.Manager)
+	d.Set("employee_number", res.Result.Employeenumber)
+	d.Set("employee_type", res.Result.Employeetype)
+	d.Set("preferred_language", res.Result.Preferredlanguage)
+	d.Set("account_disabled", res.Result.Nsaccountlock)
+	d.Set("ssh_public_key", res.Result.Ipasshpubkey)
+	d.Set("car_license", res.Result.Carlicense)
+	d.Set("krb_principal_expiration", res.Result.Krbprincipalexpiration)
+	d.Set("krb_password_expiration", res.Result.Krbpasswordexpiration)
+	d.Set("userclass", res.Result.Userclass)
 
 	log.Printf("[DEBUG] Read freeipa user %s", res.Result.UID)
 
