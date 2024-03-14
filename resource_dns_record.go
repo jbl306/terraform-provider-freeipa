@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"strings"
+	"fmt"
 
 	ipa "github.com/RomanButsiy/go-freeipa/freeipa"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,7 +18,7 @@ func resourceFreeIPADNSRecord() *schema.Resource {
 		UpdateContext: resourceFreeIPADNSDNSRecordUpdate,
 		DeleteContext: resourceFreeIPADNSDNSRecordDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			State: resourceFreeIPADNSDNSRecordImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -47,11 +48,13 @@ func resourceFreeIPADNSRecord() *schema.Resource {
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Time to live",
 			},
 			"set_identifier": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Unique identifier to differentiate records with routing policies from one another",
 			},
@@ -163,45 +166,54 @@ func resourceFreeIPADNSDNSRecordRead(ctx context.Context, d *schema.ResourceData
 			return diag.Errorf("Error reading freeipa DNS record: %s", err)
 		}
 	}
+
+	if res.Result.Idnsname != "" {
+		d.Set("name", res.Result.Idnsname)
+	}
+	if zone_name != "" {
+		d.Set("zone_name", zone_name)
+	}
+
 	_type := d.Get("type")
 
 	switch _type {
 	case "A":
 		if res.Result.Arecord != nil {
-			d.Set("records", *res.Result.Arecord)
+			d.Set("records", res.Result.Arecord)
 		}
 	case "AAAA":
 		if res.Result.Aaaarecord != nil {
-			d.Set("records", *res.Result.Aaaarecord)
+			d.Set("records", res.Result.Aaaarecord)
 		}
 	case "MX":
 		if res.Result.Mxrecord != nil {
-			d.Set("records", *res.Result.Mxrecord)
+			d.Set("records", res.Result.Mxrecord)
 		}
 	case "NS":
 		if res.Result.Nsrecord != nil {
-			d.Set("records", *res.Result.Nsrecord)
+			d.Set("records", res.Result.Nsrecord)
 		}
 	case "PTR":
 		if res.Result.Ptrrecord != nil {
-			d.Set("records", *res.Result.Ptrrecord)
+			d.Set("records", res.Result.Ptrrecord)
 		}
 	case "SRV":
 		if res.Result.Srvrecord != nil {
-			d.Set("records", *res.Result.Srvrecord)
+			d.Set("records", res.Result.Srvrecord)
 		}
 	case "TXT":
 		if res.Result.Txtrecord != nil {
-			d.Set("records", *res.Result.Txtrecord)
+			d.Set("records", res.Result.Txtrecord)
 		}
 	case "SSHFP":
 		if res.Result.Sshfprecord != nil {
-			d.Set("records", *res.Result.Sshfprecord)
+			d.Set("records", res.Result.Sshfprecord)
 		}
 	}
 
+	//d.Set("set_identifier", res.Result.Idnsrecordsetidentifier)
 	if res.Result.Dnsttl != nil {
-		d.Set("ttl", *res.Result.Dnsttl)
+		d.Set("ttl", res.Result.Dnsttl)
 	}
 
 	return nil
@@ -318,3 +330,31 @@ func resourceFreeIPADNSDNSRecordDelete(ctx context.Context, d *schema.ResourceDa
 	d.SetId("")
 	return nil
 }
+
+func resourceFreeIPADNSDNSRecordImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error){
+	parts := strings.Split(d.Id(), "/")
+    if len(parts) != 3 {
+        return []*schema.ResourceData{}, fmt.Errorf("Invalid ID: The expected format is <record name>/<zone name>/<record type>")
+    }
+
+    d.Set("name", parts[0])
+    d.Set("zone_name", parts[1])
+	d.Set("type", parts[2])
+
+	record_name := parts[0]
+	zone_name := parts[1]
+	_type := parts[2]
+
+	// Generate an ID
+	vars := []string{
+		zone_name,
+		strings.ToLower(record_name),
+		_type,
+	}
+
+	d.SetId(strings.Join(vars, "_"))
+
+
+    return []*schema.ResourceData{d}, nil
+}
+
