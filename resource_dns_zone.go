@@ -17,7 +17,7 @@ func resourceFreeIPADNSZone() *schema.Resource {
 		UpdateContext: resourceFreeIPADNSDNSZoneUpdate,
 		DeleteContext: resourceFreeIPADNSDNSZoneDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			State: resourceFreeIPADNSDNSZoneImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -29,40 +29,43 @@ func resourceFreeIPADNSZone() *schema.Resource {
 			},
 			"is_reverse_zone": {
 				Type:        schema.TypeBool,
+				Computed:    true,
 				Optional:    true,
-				Default:     false,
 				Description: "Allow create the reverse zone",
 			},
 			"disable_zone": {
 				Type:        schema.TypeBool,
+				Computed:	 true,
 				Optional:    true,
-				Default:     false,
 				Description: "Allow disabled the zone",
 			},
 			"skip_overlap_check": { // Force DNS zone creation even if it will overlap with an existing zone
 				Type:        schema.TypeBool,
+				Computed:	 true,
 				Optional:    true,
-				Default:     false,
 				Description: "Force DNS zone creation even if it will overlap with an existing zone",
 			},
 			"authoritative_nameserver": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: "Authoritative nameserver domain name",
 			},
 			"skip_nameserver_check": {
 				Type:        schema.TypeBool,
+				Computed:	 true,
 				Optional:    true,
-				Default:     false,
 				Description: "Force DNS zone creation even if nameserver is not resolvable",
 			},
 			"admin_email_address": {
 				Type:        schema.TypeString,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Administrator e-mail address",
 			},
 			"soa_serial_number": {
 				Type:        schema.TypeInt,
+				Computed:    true,
 				Optional:    true,
 				Description: "SOA record serial number",
 			},
@@ -92,39 +95,42 @@ func resourceFreeIPADNSZone() *schema.Resource {
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
+				Computed: 	 true,
 				Optional:    true,
 				Description: "Time to live for records at zone apex",
 			},
 			"default_ttl": {
 				Type:        schema.TypeInt,
+				Computed: 	 true,
 				Optional:    true,
 				Description: "Time to live for records without explicit TTL definition",
 			},
 			"dynamic_updates": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				Description: "Allow dynamic updates",
 			},
 			"bind_update_policy": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: "BIND update policy",
 			},
 			"allow_query": {
 				Type:        schema.TypeString,
+				Computed: 	 true,
 				Optional:    true,
-				Default:     "any",
 				Description: "Semicolon separated list of IP addresses or networks which are allowed to issue queries",
 			},
 			"allow_transfer": {
 				Type:        schema.TypeString,
+				Computed: 	 true,
 				Optional:    true,
-				Default:     "none",
 				Description: "Semicolon separated list of IP addresses or networks which are allowed to transfer the zone",
 			},
 			"zone_forwarders": {
 				Type:        schema.TypeList,
+				Computed: 	 true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Per-zone forwarders. A custom port can be specified for each forwarder using a standard format IP_ADDRESS port PORT",
@@ -132,17 +138,18 @@ func resourceFreeIPADNSZone() *schema.Resource {
 			"allow_prt_sync": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
+				Default:     true,
 				Description: "Allow synchronization of forward (A, AAAA) and reverse (PTR) records in the zone",
 			},
 			"allow_inline_dnssec_signing": {
 				Type:        schema.TypeBool,
+				Computed: 	 true,
 				Optional:    true,
-				Default:     false,
 				Description: "Allow inline DNSSEC signing of records in the zone",
 			},
 			"nsec3param_record": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: "NSEC3PARAM record for zone in format: hash_algorithm flags iterations salt",
 			},
@@ -296,8 +303,28 @@ func resourceFreeIPADNSDNSZoneRead(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	d.Set("is_reverse_zone", res.Result.NameFromIP)
 	d.Set("disable_zone", !*res.Result.Idnszoneactive)
-
+	//d.Set("skip_overlap_check", res.Result.SkipOverlapCheck)
+	d.Set("authoritative_nameserver", res.Result.Idnssoamname)
+	// //d.Set("skip_nameserver_check", res.Result.SkipNameserverCheck)
+	d.Set("admin_email_address", res.Result.Idnssoarname)
+	d.Set("soa_serial_number", res.Result.Idnssoaserial)
+	d.Set("soa_refresh", res.Result.Idnssoarefresh)
+	d.Set("soa_retry", res.Result.Idnssoaretry)
+	d.Set("soa_expire", res.Result.Idnssoaexpire)
+	d.Set("soa_minimum", res.Result.Idnssoaminimum)
+	d.Set("ttl", res.Result.Dnsttl)
+	d.Set("default_ttl", res.Result.Dnsdefaultttl)
+	d.Set("dynamic_updates", res.Result.Idnsallowdynupdate)
+	d.Set("bind_update_policy", res.Result.Idnsupdatepolicy)
+	d.Set("allow_query", res.Result.Idnsallowquery)
+	d.Set("allow_transfer", res.Result.Idnsallowtransfer)
+	d.Set("zone_forwarders", res.Result.Idnsforwarders)
+	d.Set("allow_prt_sync", res.Result.Idnsallowsyncptr)
+	d.Set("allow_inline_dnssec_signing", res.Result.Idnssecinlinesigning)
+	d.Set("nsec3param_record", res.Result.Nsec3paramrecord)
+	
 	log.Printf("[DEBUG] Read freeipa dns zone %s", res.Result.Idnsname)
 	return nil
 }
@@ -490,4 +517,13 @@ func resourceFreeIPADNSDNSZoneDelete(ctx context.Context, d *schema.ResourceData
 
 	d.SetId("")
 	return nil
+}
+
+func resourceFreeIPADNSDNSZoneImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error){
+	log.Println("[DEBUG] Import freeipa dns zone")
+
+	d.Set("zone_name", d.Id())
+	d.SetId(d.Id() + ".")
+
+	return []*schema.ResourceData{d}, nil
 }
