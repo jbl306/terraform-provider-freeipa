@@ -107,6 +107,7 @@ func resourceFreeIPADNSZone() *schema.Resource {
 			},
 			"dynamic_updates": {
 				Type:        schema.TypeBool,
+				Computed:	 true,
 				Optional:    true,
 				Description: "Allow dynamic updates",
 			},
@@ -137,8 +138,8 @@ func resourceFreeIPADNSZone() *schema.Resource {
 			},
 			"allow_prt_sync": {
 				Type:        schema.TypeBool,
+				Computed:	 true,
 				Optional:    true,
-				Default:     true,
 				Description: "Allow synchronization of forward (A, AAAA) and reverse (PTR) records in the zone",
 			},
 			"allow_inline_dnssec_signing": {
