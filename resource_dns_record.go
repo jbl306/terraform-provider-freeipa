@@ -209,6 +209,10 @@ func resourceFreeIPADNSDNSRecordRead(ctx context.Context, d *schema.ResourceData
 		if res.Result.Sshfprecord != nil {
 			d.Set("records", res.Result.Sshfprecord)
 		}
+	case "CNAME":
+		if res.Result.Cnamerecord != nil {
+			d.Set("records", res.Result.Cnamerecord)
+		}
 	}
 
 	//d.Set("set_identifier", res.Result.Idnsrecordsetidentifier)
