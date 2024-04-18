@@ -303,8 +303,12 @@ func resourceFreeIPADNSDNSZoneRead(ctx context.Context, d *schema.ResourceData, 
 			return diag.Errorf("Error reading freeipa DNS zone: %s", err)
 		}
 	}
-
-	d.Set("is_reverse_zone", res.Result.NameFromIP)
+	
+	if strings.Contains(res.Result.Idnsname, "in-addr.arpa") {
+		d.Set("is_reverse_zone", true)
+	} else {
+		d.Set("is_reverse_zone", false)
+	}
 	d.Set("disable_zone", !*res.Result.Idnszoneactive)
 	//d.Set("skip_overlap_check", res.Result.SkipOverlapCheck)
 	d.Set("authoritative_nameserver", res.Result.Idnssoamname)
